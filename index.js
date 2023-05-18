@@ -51,7 +51,11 @@ async function run() {
             res.send(result);
         })
 
-        
+        app.delete("/delete/:id", (req, res) => {
+            const id = req.params.id
+            const result = toys_collection.deleteOne({ _id: new ObjectId(id) })
+            res.send(result)
+        })
 
 
         // Send a ping to confirm a successful connection
