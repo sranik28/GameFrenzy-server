@@ -35,7 +35,13 @@ async function run() {
             res.send(result)
         })
 
-        
+        app.get("/toy/:id", async (req, res) => {
+            const id = req.params.id
+            const toy = await toys_collection.findOne({ _id: new ObjectId(id) })
+            res.send(toy)
+        })
+
+       
 
 
         // Send a ping to confirm a successful connection
