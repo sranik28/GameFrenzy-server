@@ -69,24 +69,32 @@ async function run() {
             res.send(result)
         })
 
-        app.put('/addToys/:id', async (req, res) => {
-            const id = req.params.id;
-            const filter = { _id: new ObjectId(id) }
-            const options = { upsert: true };
-            const updatedToys = req.body;
-            const toys = {
-                $set: {
-                    name: updatedToys.name, quantity: updatedToys.quantity, seller_name: updatedToys.seller_name, sub_category: updatedToys.sub_category, price: updatedToys.price, toy_image: updatedToys.toy_image, rating: updatedToys.rating, description: updatedToys.description
-                }
-            }
-
-            const result = await toys_collection.updateOne(filter, toys, options)
-            res.send(result);
-        })
-
-        app.delete("/delete/:id", (req, res) => {
+        app.put("/update/:id", async (req, res) => {
             const id = req.params.id
-            const result = toys_collection.deleteOne({ _id: new ObjectId(id) })
+            const data = req.body
+            const result = await toys_collection.updateOne({_id: new ObjectId(id)}, {
+                $set: {
+                  photo_url: data.photo_url,
+                  name: data.name,
+                  seller_name: data.seller_name,
+                  seller_email: data.seller_email,
+                  sub_category: data.sub_category,
+                  price: data.price,
+                  rating: data.rating,
+                  quantity: data.quantity,
+                  description: data.description
+                }},
+                {
+                    upsert: true
+                }
+            )
+            res.send(result)
+        })
+        
+
+        app.delete("/delete/:id", async (req, res) => {
+            const id = req.params.id
+            const result = await toys_collection.deleteOne({ _id: new ObjectId(id) })
             res.send(result)
         })
 
