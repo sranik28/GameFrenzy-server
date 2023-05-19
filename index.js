@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 
 const port = process.env.PORT || 3000;
 const app = express();
@@ -36,7 +36,7 @@ async function run() {
         })
 
         app.get("/toy/:id", async (req, res) => {
-            const id = req.params.id
+            const id = req.params.id;
             const toy = await toys_collection.findOne({ _id: new ObjectId(id) })
             res.send(toy)
         })
@@ -54,19 +54,34 @@ async function run() {
         app.post("/add-toy", async (req, res) => {
             const data = req.body
             const toy = {
-              photo_url: data.photo_url,
-              name: data.name,
-              seller_name: data.seller_name,
-              seller_email: data.seller_email,
-              sub_category: data.sub_category,
-              price: data.price,
-              rating: data.rating,
-              quantity: data.quantity,
-              description: data.description
+                photo_url: data.photo_url,
+                name: data.name,
+                seller_name: data.seller_name,
+                seller_email: data.seller_email,
+                sub_category: data.sub_category,
+                price: data.price,
+                rating: data.rating,
+                quantity: data.quantity,
+                description: data.description
             }
             console.log(toy)
             const result = await toys_collection.insertOne(toy)
             res.send(result)
+        })
+
+        app.put('/addToys/:id', async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: new ObjectId(id) }
+            const options = { upsert: true };
+            const updatedToys = req.body;
+            const toys = {
+                $set: {
+                    name: updatedToys.name, quantity: updatedToys.quantity, seller_name: updatedToys.seller_name, sub_category: updatedToys.sub_category, price: updatedToys.price, toy_image: updatedToys.toy_image, rating: updatedToys.rating, description: updatedToys.description
+                }
+            }
+
+            const result = await toys_collection.updateOne(filter, toys, options)
+            res.send(result);
         })
 
         app.delete("/delete/:id", (req, res) => {
