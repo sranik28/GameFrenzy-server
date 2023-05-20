@@ -10,7 +10,7 @@ app.use(cors());
 app.use(express.json());
 
 
-console.log(process.env.DB_USER)
+
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster1.ngcynwn.mongodb.net/?retryWrites=true&w=majority`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -50,6 +50,15 @@ async function run() {
             const result = await toys_collection.find(query).toArray();
             res.send(result);
         })
+        app.get('/tabs', async (req, res) => {
+            console.log(req.query.sub_category);
+            let query = {};
+            if (req.query?.sub_category) {
+                query = { sub_category: req.query.sub_category }
+            }
+            const result = await toys_collection.find(query).toArray();
+            res.send(result);
+        })
 
         app.post("/add-toy", async (req, res) => {
             const data = req.body
@@ -64,14 +73,13 @@ async function run() {
                 quantity: data.quantity,
                 description: data.description
             }
-            console.log(toy)
             const result = await toys_collection.insertOne(toy)
             res.send(result)
         })
 
         app.put("/update/:id", async (req, res) => {
-            const id = req.params.id
-            const data = req.body
+            const id = req.params.id;
+            const data = req.body;
             const result = await toys_collection.updateOne({_id: new ObjectId(id)}, {
                 $set: {
                   photo_url: data.photo_url,
