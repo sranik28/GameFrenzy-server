@@ -22,12 +22,17 @@ const client = new MongoClient(uri, {
     }
 });
 
+
 async function run() {
     try {
         // Connect the client to the server	(optional starting in v4.7)
         client.connect();
 
-        const toys_collection = client.db("games-frenzy").collection("toys")
+        const toys_collection = client.db("games-frenzy").collection("toys");
+
+        const indexKey = { name: 1 }
+        const indexOption = { name: "toy_name" }
+        await toys_collection.createIndex(indexKey, indexOption);
 
         app.get("/toys", async (req, res) => {
             const toys = toys_collection.find()
@@ -60,6 +65,7 @@ async function run() {
             res.send(result);
         })
 
+
         app.get("/sort", async (req, res) => {
             let sort_type = {};
             if (req.query?.sortby) {
@@ -76,6 +82,14 @@ async function run() {
             res.send(result)
 
         })
+
+        app.get("/search", async (req, res) => {
+            const searchQuery = req.query?.query
+            const result = await toys_collection.find({ name: { $regex: searchQuery, $options: "i" } }).toArray()
+            res.send(result)
+
+        })
+
 
         app.post("/add-toy", async (req, res) => {
             const data = req.body
